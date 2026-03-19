@@ -1,27 +1,5 @@
 import api from "./api";
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-interface RegisterPayload {
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    level: number;
-    xp: number;
-    streak: number;
-  };
-  accessToken: string;
-}
+import type { LoginPayload, RegisterPayload, AuthResponse, User } from "@/types/auth.types";
 
 export const authApi = {
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
@@ -34,13 +12,15 @@ export const authApi = {
     return data;
   },
 
-  getMe: async () => {
-    const { data } = await api.get("/auth/me");
+  getMe: async (): Promise<User> => {
+    const { data } = await api.get<User>("/auth/me");
     return data;
   },
 
-  refreshToken: async () => {
-    const { data } = await api.post("/auth/refresh");
-    return data;
+  logout: async (): Promise<void> => {
+    // Call backend to invalidate refresh token (if implemented)
+    await api.post("/auth/logout").catch(() => {
+      // Silently fail — we'll clear local state regardless
+    });
   },
 };
